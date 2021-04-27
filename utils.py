@@ -153,10 +153,11 @@ def preprocess(input_resolution=224):
 
 def getImageMean(images):
     ''' TODO: Gets image mean given a set of images '''
-
+    return torch.mean(images, dim=0)
 
 def getImageStd(images):
-    ''' TODO: Gets image mean given a set of images '''
+    ''' TODO: Gets image standard deviation given a set of images '''
+    return torch.std(images, dim=0)
 
 defImageMean = torch.tensor([0.48145466, 0.4578275, 0.40821073]).cuda()
 defImageStd = torch.tensor([0.26862954, 0.26130258, 0.27577711]).cuda()
