@@ -10,14 +10,17 @@ def load_cifar10_batch(file):
 
     Returns:
     - tuple of (data, labels):
-        - data: a PyTorch tensor of flattened images of shape (N, D) where N is the number of images
-                and D = W * H * 3
+        - data: a PyTorch tensor of flattened images of shape (N, D, W, H)
         - labels: a PyTorch tensor of shape (N,) containing N labels in the range 0-9, such that
                 labels[i] corresponds to data[i]
     """
     with open(file, 'rb') as fo:
         d = pickle.load(fo, encoding='bytes')
-    return torch.tensor(d[b'data']), torch.tensor(d[b'labels'])
+    
+    data = torch.tensor(d[b'data'])
+    data = data.view(data.shape[0], 3, 32, 32)  # (N, W * H * 3)
+    labels = torch.tensor(d[b'labels'])
+    return data, labels
 
 def load_cifar10(batch_paths):
     """ Loads a list of CIFAR-10 batches.
@@ -27,7 +30,7 @@ def load_cifar10(batch_paths):
 
     Returns:
     - tuple of (data, labels):
-        - data: a PyTorch tensor of flattened images of shape (N, D) where N is the total number of
+        - data: a PyTorch tensor of flattened images of shape (N, D, W, H) where N is the total number of
                 images across all batches
         - labels: a PyTorch tensor of N labels in the range 0-9
     """

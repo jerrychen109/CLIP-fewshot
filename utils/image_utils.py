@@ -6,6 +6,22 @@ import torch
 from torchvision.transforms import Compose, Resize, CenterCrop, ToTensor, Normalize
 from PIL import Image
 
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+def resize_images(images, height=224, width=224):
+    """ Up/downscales images to the given width and height.
+
+    Inputs:
+    - images: a PyTorch tensor shaped (N, D, H, W)
+    - height: the new height
+    - width: the new width
+
+    Returns:
+    - the resized images, shaped (N, D, height, width)
+    """
+    return torch.nn.functional.interpolate(images, size=(height, width))
+
+
 def preprocess(input_resolution=224):
     ''' Defines preprocessing function according to input resolution '''
     return Compose([
@@ -36,12 +52,12 @@ def getImageStd(images):
     '''
     return torch.std(images, dim=(0, 1, 2))
 
-defImageMean = torch.tensor([0.48145466, 0.4578275, 0.40821073]).cuda()
-defImageStd = torch.tensor([0.26862954, 0.26130258, 0.27577711]).cuda()
+defImageMean = torch.tensor([0.48145466, 0.4578275, 0.40821073]).to(device)
+defImageStd = torch.tensor([0.26862954, 0.26130258, 0.27577711]).to(device)
 
 def standardize(images, image_mean=defImageMean, image_std=defImageStd):
     ''' Standardizes list of images'''
-    image_input = torch.tensor(np.stack(images)).cuda()
+    image_input = torch.tensor(np.stack(images)).to(device)
     image_input -= image_mean[:, None, None]
     image_input /= image_std[:, None, None]
     return image_input
