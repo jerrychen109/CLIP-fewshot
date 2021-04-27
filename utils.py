@@ -158,17 +158,18 @@ def getImageMean(images):
 def getImageStd(images):
     ''' TODO: Gets image mean given a set of images '''
 
+defImageMean = torch.tensor([0.48145466, 0.4578275, 0.40821073]).cuda()
+defImageStd = torch.tensor([0.26862954, 0.26130258, 0.27577711]).cuda()
 
-def standardize(images, image_mean, image_std):
+def standardize(images, image_mean=defImageMean, image_std=defImageStd):
     ''' Standardizes list of images'''
     image_input = torch.tensor(np.stack(images)).cuda()
     image_input -= image_mean[:, None, None]
     image_input /= image_std[:, None, None]
     return image_input
 
-
 def getImageFromFile(startDir, filename, input_resolution=224):
-    preprocess(input_resolution)(Image.open(os.path.join(
+    return preprocess(input_resolution)(Image.open(os.path.join(
         startDir, filename)).convert("RGB"))
 
 
