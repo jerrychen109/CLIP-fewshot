@@ -2,8 +2,9 @@ import utils
 import numpy as np
 
 class Prototype():
-    def __init__(self, imageEncodeFunc, k=None, label=None):
+    def __init__(self, imageEncodeFunc, seed=1729, k=None, label=None):
         self.imageEncodeFunc = imageEncodeFunc
+        self.seed = seed
         self.k = k
         self.label = label
         self.images = []
@@ -31,7 +32,7 @@ class Prototype():
 
     def addVector(self, image):
         '''TODO: Do something with the vector (add to vectors + maybe use it to find average?) '''
-        image_vector = imageEncodeFunc(image)
+        image_vector = self.imageEncodeFunc(image)
 
     def getImages(self):
         return self.images
@@ -41,3 +42,8 @@ class Prototype():
 
     def getVectors(self):
         return self.vectors
+    
+    def getImages(self, k=None):
+        if k is None:
+            k = self.k
+        ''' TODO: Extract k images and change class vectors '''
