@@ -30,6 +30,18 @@ class Prototype():
 
     def changeSeed(self, seed):
         self.seed = seed
+        
+    def calcClassVector(self, k=None):
+        if k is None:
+            k = self.k
+        return torch.tensor(self.rng.choice(self.norm_vectors.cpu().numpy(), k).mean(axis=0), device=self.device)
+
+    #     # Normalizes random k vectors and sets classVectors
+    #     if k is None:
+    #         k = self.k
+    #     indices = self.rng(range(len(images)), k)
+    #     indices = torch.tensor(indices)
+    #     self.classVectors = normalize(self.vectors[indices]).numpy()
 
     # def addImage(self, image):
     #     # Standardizes and encodes image, updates data structures
@@ -44,16 +56,15 @@ class Prototype():
         self.addImages(images)
 
     def addImages(self, images):
-        device = self.device
         if self.images is None:
-            self.images = torch.tensor(np.stack(images)).device()
+            self.images = torch.tensor(np.stack(images))
         else:
-            self.images = torch.tensor(np.stack(self.images, images)).device()
-        self.STDImages = standardize(self.images)
+            self.images = torch.tensor(np.stack(self.images, images))
+        self.STDImages = standardize(self.images, self.device)
         self.vectors = encodeImageWithFunc(
             self.imageEncodeFunc, self.STDImages)
         self.norm_vectors = normalize(self.vectors)
-        self.classVector = self.rng.choice(norm_vectors, self.k).mean(axis=0)
+        self.classVector = self.calcClassVector()
         # self.images.append(images)
 
     # def addSTDImage(self, STDImage):
@@ -80,16 +91,8 @@ class Prototype():
     def getNormVectors(self):
         return self.norm_vectors
 
-    # def setClassVectors(self, k=None):
-    #     # Normalizes random k vectors and sets classVectors
-    #     if k is None:
-    #         k = self.k
-    #     indices = self.rng(range(len(images)), k)
-    #     indices = torch.tensor(indices)
-    #     self.classVectors = normalize(self.vectors[indices]).numpy()
-
     def getClassVector(self, k=None):
         # Calculates and returns classVector
         if k is None or k == self.k:
             return self.classVector
-        return self.rng.choice(self.norm_vectors, k).mean(axis=0)
+        return self.calcClassVector(k)
