@@ -30,7 +30,22 @@ class PrototypeVector():
 
     def addPrototypesWithFilenames(self, allStartdirs, allFilenames, labels):
         for startdir, filenames, label in zip(allStartdirs, allFilenames, labels):
-            self.addPrototype(startdir, filenames, label)
+            self.addPrototypeWithFilenames(startdir, filenames, label)
+            
+    def addPrototype(self, images, label):
+        newPrototype = Prototype(self.imageEncodeFunc,
+                                 self.device, label, self.k, self.seed)
+        newPrototype.addImages(images)
+        self.allImages.append(newPrototype.getImages())
+        self.allSTDImages.append(newPrototype.getSTDImages())
+        self.allVectors.append(newPrototype.getVectors())
+        self.allNormVectors.append(newPrototype.getNormVectors())
+        self.allClassVectors.append(newPrototype.getClassVector(self.k))
+        self.labelsToPrototypes[label] = newPrototype
+
+    def addPrototypes(self, setImages, labels):
+        for images, label in zip(setImages, labels):
+            self.addPrototype(images, label)
 
     def getClassVectors(self, k=None):
         if k is None or k == self.k:
