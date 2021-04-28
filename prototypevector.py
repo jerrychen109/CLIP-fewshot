@@ -1,204 +1,58 @@
-import math
-import matplotlib.pyplot as plt
+import utils
 import numpy as np
-import os
-import torch
-from torchvision.transforms import Compose, Resize, CenterCrop, ToTensor, Normalize
-from PIL import Image
-
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-
-def resize_images(images, height=224, width=224):
-    """ Up/downscales images to the given width and height.
-
-    Inputs:
-    - images: a PyTorch tensor shaped (N, D, H, W)
-    - height: the new height
-    - width: the new width
-
-    Returns:
-    - the resized images, shaped (N, D, height, width)
-    """
-    return torch.nn.functional.interpolate(images, size=(height, width))
+from prototype import Prototype
 
 
-def preprocess(input_resolution=224):
-    ''' Defines preprocessing function according to input resolution '''
-    return Compose([
-        Resize(input_resolution, interpolation=Image.BICUBIC),
-        CenterCrop(input_resolution),
-        ToTensor()
-    ])
+class PrototypeVector():
+    def __init__(self, imageEncodeFunc, device, k=None, seed=1729):
+        self.imageEncodeFunc = imageEncodeFunc
+        self.device = device
+        self.k = k
+        self.seed = seed
+        self.rng = np.random.default_rng(seed)
+        self.labelsToPrototypes = {}
+        self.allImages = []
+        self.allSTDImages = []
+        self.allVectors = []
+        self.allNormVectors = []
+        self.allClassVectors = []
 
+    def addPrototypeWithFilenames(self, startdir, filenames, label):
+        newPrototype = Prototype(self.imageEncodeFunc,
+                                 self.device, label, self.k, self.seed)
+        newPrototype.addImagesWithFilenames(startdir, filenames)
+        self.addInfo(newPrototype, label)
 
-def getImageMean(images):
-    ''' TODO: Gets image mean given a set of images.
-    Inputs:
-    - images: a tensor of shape (N, H, W, D)
+    def addPrototypesWithFilenames(self, allStartdirs, allFilenames, labels):
+        for startdir, filenames, label in zip(allStartdirs, allFilenames, labels):
+            self.addPrototypeWithFilenames(startdir, filenames, label)
+            
+    def addPrototype(self, images, label):
+        newPrototype = Prototype(self.imageEncodeFunc,
+                                 self.device, label, self.k, self.seed)
+        newPrototype.addImages(images)
+        self.addInfo(newPrototype, label)
 
-    Returns:
-    - the mean pixel value across all images. Shape (D,)
-    '''
-    return torch.mean(images, dim=(0, 1, 2))
+    def addInfo(self, newPrototype, label):
+        self.allImages.append(newPrototype.getImages().cpu().numpy())
+        self.allSTDImages.append(newPrototype.getSTDImages().cpu().numpy())
+        self.allVectors.append(newPrototype.getVectors().cpu().numpy())
+        self.allNormVectors.append(newPrototype.getNormVectors().cpu().numpy())
+        self.allClassVectors.append(newPrototype.getClassVector(self.k).cpu().numpy())
+        self.labelsToPrototypes[label] = newPrototype
 
+    def addPrototypes(self, setImages, labels):
+        for images, label in zip(setImages, labels):
+            self.addPrototype(images, label)
+            
+    def getLabelsToPrototypes(self):
+        return self.labelsToPrototypes
 
-def getImageStd(images):
-    ''' TODO: Gets image standard deviation given a set of images
+    def getClassVectors(self, k=None):
+        if k is None or k == self.k:
+            return self.allClassVectors
+        return [key.getClassVector() for key in self.labelsToPrototypes.keys()]
 
-    Inputs:
-    - images: a tensor of shape (N, H, W, D)
-
-    Returns:
-    - the pixel standard deviation across all images. Shape (D,)
-    '''
-    return torch.std(images, dim=(0, 1, 2))
-
-
-defImageMean = np.array([0.48145466, 0.4578275, 0.40821073])
-defImageStd = np.array([0.26862954, 0.26130258, 0.27577711])
-
-def standardize(images, device=device, image_mean=None, image_std=None):
-    ''' Standardizes list of images'''
-    if image_mean is None:
-        image_mean = torch.tensor(defImageMean, device=device)
-    if image_std is None:
-        image_std = torch.tensor(defImageStd, device=device)
-    image_input = torch.tensor(np.stack(images), device=device)
-    image_input -= image_mean[:, None, None]
-    image_input /= image_std[:, None, None]
-    return image_input
-
-
-def getImageFilesFromDir(startDir):
-    return [filename for filename in os.listdir(startDir) if filename.endswith(
-        ".png") or filename.endswith(".jpg")]
-
-
-def getImageFromFile(startDir, filename, input_resolution=224):
-    return preprocess(input_resolution)(Image.open(os.path.join(
-        startDir, filename)).convert("RGB"))
-
-
-def getImagesFromFiles(startDir, filenames, input_resolution=224):
-    return [getImageFromFile(startDir, filename, input_resolution) for filename in filenames]
-
-
-def graphFiles(startDir, filenames, input_resolution=224, texts=None, descriptions=None):
-    images = getImagesFromFiles(startDir, filenames, input_resolution)
-    if texts is None:
-        texts = extractNames(filenames)
-    return graphImages(images, texts, descriptions)
-
-
-def graphImages(images, texts=None, descriptions=None):
-    plt.figure(figsize=(16, 16))
-    if texts is None:
-        texts = list(range(len(images)))
-
-    subplot_size = extractSubplotSize(len(images))
-    for idx, image in enumerate(images):
-        plt.subplot(*subplot_size, idx + 1)
-        plt.imshow(image.permute(1, 2, 0))
-        if descriptions is None:
-            plt.title(f"{texts[idx]}")
-        else:
-            plt.title(f"{texts[idx]}\n{descriptions[texts[idx]]}")
-        plt.xticks([])
-        plt.yticks([])
-
-    plt.tight_layout()
-    return images
-
-
-def normalize(features):
-    features /= features.norm(dim=-1, keepdim=True)
-    return features
-
-
-def cosineSimilarity(features1, features2):
-    norm_features1 = normalize(features1)
-    norm_features2 = normalize(features2)
-    similarity = norm_features1.cpu().numpy() @ norm_features2.cpu().numpy().T
-
-
-def softmax(features1, features2):
-    text_probs = (100.0 * normalize(features1) @
-                  normalize(features2).T).softmax(dim=-1)
-    return text_probs
-
-
-def graphImagesCosineSim(images, descriptions, image_features, text_features):
-    similarity = cosineSimilarity(image_features, text_features)
-    count = len(descriptions)
-
-    plt.figure(figsize=(20, 14))
-    plt.imshow(similarity, vmin=0.1, vmax=0.3)
-    # plt.colorbar()
-    plt.yticks(range(count), list(descriptions.values()), fontsize=18)
-    plt.xticks([])
-    for i, image in enumerate(images):
-        plt.imshow(image.permute(1, 2, 0), extent=(
-            i - 0.5, i + 0.5, -1.6, -0.6), origin="lower")
-    for x in range(similarity.shape[1]):
-        for y in range(similarity.shape[0]):
-            plt.text(x, y, f"{similarity[y, x]:.2f}",
-                     ha="center", va="center", size=12)
-
-    for side in ["left", "top", "right", "bottom"]:
-        plt.gca().spines[side].set_visible(False)
-
-    plt.xlim([-0.5, count - 0.5])
-    plt.ylim([count + 0.5, -2])
-
-    plt.title("Cosine similarity between text and image features", size=20)
-    return similarity
-
-
-def graphImagesSoftmax(images, labels, image_features, label_features):
-    plt.figure(figsize=(16, 16))
-    height, width = extractSubplotSize(len(images))
-    text_probs = (image_features, label_features)
-    top_probs, top_labels = text_probs.cpu().topk(5, dim=-1)
-    for i, image in enumerate(images):
-        plt.subplot(height, width*2, 2 * i + 1)
-        plt.imshow(image.permute(1, 2, 0))
-        plt.axis("off")
-
-        plt.subplot(4, 4, 2 * i + 2)
-        y = np.arange(top_probs.shape[-1])
-        plt.grid()
-        plt.barh(y, top_probs[i])
-        plt.gca().invert_yaxis()
-        plt.gca().set_axisbelow(True)
-        plt.yticks(y, [labels[index] for index in top_labels[i].numpy()])
-        plt.xlabel("probability")
-
-    plt.subplots_adjust(wspace=0.5)
-    plt.show()
-
-
-def extractNames(filenames):
-    ''' Finds last part of list of filenames '''
-    return [os.path.basename(os.path.normpath(filename)) for filename in filenames]
-
-
-def extractSubplotSize(imageNum):
-    ''' Finds optimal width and height '''
-    start = int(math.sqrt(imageNum))
-    while True:
-        if (imageNum % start) == 0:
-            return (start, int(imageNum/start))
-        start -= 1
-    return (1, imageNum)
-
-
-def encodeImageInModel(model, imageInput):
-    with torch.no_grad():
-        image_features = model.encode_image(imageInput).float()
-    return image_features
-
-
-def encodeImageWithFunc(imageEncodeFunc, imageInput):
-    with torch.no_grad():
-        image_features = imageEncodeFunc(imageInput).float()
-    return image_features
+    def classify(self, images):
+        '''TODO: classify list of images'''
+        pass
