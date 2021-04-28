@@ -2,6 +2,7 @@ import os
 import pickle
 import torch
 
+
 def load_cifar10_batch(file):
     """ Unpickles a CIFAR-10 batch file. https://www.cs.toronto.edu/~kriz/cifar.html
 
@@ -16,11 +17,12 @@ def load_cifar10_batch(file):
     """
     with open(file, 'rb') as fo:
         d = pickle.load(fo, encoding='bytes')
-    
+
     data = torch.tensor(d[b'data'])
     data = data.view(data.shape[0], 3, 32, 32)  # (N, W * H * 3)
     labels = torch.tensor(d[b'labels'])
     return data, labels
+
 
 def load_cifar10(batch_paths):
     """ Loads a list of CIFAR-10 batches.

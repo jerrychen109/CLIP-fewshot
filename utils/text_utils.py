@@ -134,20 +134,23 @@ class SimpleTokenizer(object):
         return text
 ####### CODE FROM COLAB END #######
 
-def encodeTextWithTokenizer(tokenizer, texts):
-  text_tokens = [tokenizer.encode("This is " + desc) for desc in texts]
-  text_input = torch.zeros(len(text_tokens), model.context_length, dtype=torch.long)
-  sot_token = tokenizer.encoder['<|startoftext|>']
-  eot_token = tokenizer.encoder['<|endoftext|>']
-  for i, tokens in enumerate(text_tokens):
-      tokens = [sot_token] + tokens + [eot_token]
-      text_input[i, :len(tokens)] = torch.tensor(tokens)
 
-  text_input = text_input.cuda()
-  print(text_input.shape)
-  return text_input
+def encodeTextWithTokenizer(tokenizer, texts):
+    text_tokens = [tokenizer.encode("This is " + desc) for desc in texts]
+    text_input = torch.zeros(
+        len(text_tokens), model.context_length, dtype=torch.long)
+    sot_token = tokenizer.encoder['<|startoftext|>']
+    eot_token = tokenizer.encoder['<|endoftext|>']
+    for i, tokens in enumerate(text_tokens):
+        tokens = [sot_token] + tokens + [eot_token]
+        text_input[i, :len(tokens)] = torch.tensor(tokens)
+
+    text_input = text_input.cuda()
+    print(text_input.shape)
+    return text_input
+
 
 def encodeTextInModel(model, textInput):
-  with torch.no_grad():
-    text_features = model.encode_image(textInput).float()
-  return text_features
+    with torch.no_grad():
+        text_features = model.encode_image(textInput).float()
+    return text_features

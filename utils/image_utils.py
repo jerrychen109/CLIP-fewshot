@@ -8,6 +8,7 @@ from PIL import Image
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
+
 def resize_images(images, height=224, width=224):
     """ Up/downscales images to the given width and height.
 
@@ -41,9 +42,10 @@ def getImageMean(images):
     '''
     return torch.mean(images, dim=(0, 1, 2))
 
+
 def getImageStd(images):
     ''' TODO: Gets image standard deviation given a set of images
-    
+
     Inputs:
     - images: a tensor of shape (N, H, W, D)
 
@@ -52,8 +54,10 @@ def getImageStd(images):
     '''
     return torch.std(images, dim=(0, 1, 2))
 
+
 defImageMean = torch.tensor([0.48145466, 0.4578275, 0.40821073]).to(device)
 defImageStd = torch.tensor([0.26862954, 0.26130258, 0.27577711]).to(device)
+
 
 def standardize(images, image_mean=defImageMean, image_std=defImageStd):
     ''' Standardizes list of images'''
@@ -61,6 +65,12 @@ def standardize(images, image_mean=defImageMean, image_std=defImageStd):
     image_input -= image_mean[:, None, None]
     image_input /= image_std[:, None, None]
     return image_input
+
+
+def getImageFilesFromDir(startDir):
+    return [filename for filename in os.listdir(startDir) if filename.endswith(
+        ".png") or filename.endswith(".jpg")]
+
 
 def getImageFromFile(startDir, filename, input_resolution=224):
     return preprocess(input_resolution)(Image.open(os.path.join(
@@ -164,6 +174,7 @@ def graphImagesSoftmax(images, labels, image_features, label_features):
     plt.subplots_adjust(wspace=0.5)
     plt.show()
 
+
 def extractNames(filenames):
     ''' Finds last part of list of filenames '''
     return [os.path.basename(os.path.normpath(filename)) for filename in filenames]
@@ -178,7 +189,14 @@ def extractSubplotSize(imageNum):
         start -= 1
     return (1, imageNum)
 
+
 def encodeImageInModel(model, imageInput):
-  with torch.no_grad():
-    image_features = model.encode_image(imageInput).float()
-  return image_features
+    with torch.no_grad():
+        image_features = model.encode_image(imageInput).float()
+    return image_features
+
+
+def encodeImageWithFunc(imageEncodeFunc, imageInput):
+    with torch.no_grad():
+        image_features = imageEncodeFunc(imageInput).float()
+    return image_features
