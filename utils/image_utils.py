@@ -177,3 +177,8 @@ def extractSubplotSize(imageNum):
             return (start, imageNum/start)
         start -= 1
     return (1, imageNum)
+
+def encodeImageInModel(model, imageInput):
+  with torch.no_grad():
+    image_features = model.encode_image(imageInput).float()
+  return image_features
