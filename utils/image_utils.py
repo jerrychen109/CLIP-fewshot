@@ -95,7 +95,7 @@ def graphImages(images, texts=None, descriptions=None):
 
     subplot_size = extractSubplotSize(len(images))
     for idx, image in enumerate(images):
-        plt.subplot(subplot_size, idx)
+        plt.subplot(*subplot_size, idx + 1)
         plt.imshow(image.permute(1, 2, 0))
         if descriptions is None:
             plt.title(f"{texts[idx]}")
@@ -185,7 +185,7 @@ def extractSubplotSize(imageNum):
     start = int(math.sqrt(imageNum))
     while True:
         if (imageNum % start) == 0:
-            return (start, imageNum/start)
+            return (start, int(imageNum/start))
         start -= 1
     return (1, imageNum)
 
