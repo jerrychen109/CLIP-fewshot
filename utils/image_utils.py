@@ -8,7 +8,6 @@ from PIL import Image
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-
 def resize_images(images, height=224, width=224):
     """ Up/downscales images to the given width and height.
 
@@ -55,13 +54,16 @@ def getImageStd(images):
     return torch.std(images, dim=(0, 1, 2))
 
 
-defImageMean = torch.tensor([0.48145466, 0.4578275, 0.40821073]).to(device)
-defImageStd = torch.tensor([0.26862954, 0.26130258, 0.27577711]).to(device)
+defImageMean = np.array([0.48145466, 0.4578275, 0.40821073])
+defImageStd = np.array([0.26862954, 0.26130258, 0.27577711])
 
-
-def standardize(images, image_mean=defImageMean, image_std=defImageStd):
+def standardize(images, device=device, image_mean=None, image_std=None):
     ''' Standardizes list of images'''
-    image_input = torch.tensor(np.stack(images)).to(device)
+    if image_mean is None:
+        image_mean = torch.tensor(defImageMean, device=device)
+    if image_std is None:
+        image_std = torch.tensor(defImageStd, device=device)
+    image_input = torch.tensor(np.stack(images), device=device)
     image_input -= image_mean[:, None, None]
     image_input /= image_std[:, None, None]
     return image_input
