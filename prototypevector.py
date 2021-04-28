@@ -15,11 +15,18 @@ class PrototypeVector():
         self.k = k
 
     def addPrototype(self, label, filenames):
-        '''TODO: create a new class i.e. append something to labels, allImages, allSTDImages, allVectors, classVectors'''
-        # newProto = Prototype(imageEncodeFunc, k=self.k)
-        # newProto.addImages(filenames)
-        # self.labels.append(newProto.getImages())
-        pass
+        newProto = Prototype(self.imageEncodeFunc, k=self.k)
+        newProto.addLabel(label)
+        self.labels.append(label)
+        newProto.addImages(filenames)
+        self.allImages.append(newProto.getImages())
+        for image in newProto.getImages():
+            newProto.addSTDImage(image)
+        self.allSTDImages.append(newProto.getSTDImages())
+        self.allVectors.append(newProto.getVectors())
+        newProto.setClassVectors(self, k=self.k)
+        self.classVectors.append(newProto.getClassVector())
+        self.labelsToPrototypes[label] = newProto
 
     def addPrototypes(self, labels, allFilenames):
         for label, filenames in zip(labels, allFilenames):
