@@ -63,9 +63,12 @@ def standardize(images, device=device, image_mean=None, image_std=None):
         image_mean = torch.tensor(defImageMean, device=device)
     if image_std is None:
         image_std = torch.tensor(defImageStd, device=device)
-    image_input = torch.tensor(np.stack(images), device=device)
-    image_input -= image_mean[:, None, None]
-    image_input /= image_std[:, None, None]
+#     image_input = torch.tensor(np.stack(images), device=device)
+#     image_input -= image_mean[:, None, None]
+#     image_input /= image_std[:, None, None]
+    images = images.copy()
+    images -= image_mean[:, None, None]
+    images /= image_std[:, None, None]
     return image_input
 
 
