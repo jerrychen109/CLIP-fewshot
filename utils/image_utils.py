@@ -69,7 +69,7 @@ def standardize(images, device=device, image_mean=None, image_std=None):
     images = images.copy()
     images -= image_mean[:, None, None]
     images /= image_std[:, None, None]
-    return image_input
+    return images
 
 
 def getImageFilesFromDir(startDir):
