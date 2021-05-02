@@ -94,6 +94,4 @@ class Prototype():
 
     def getClassVector(self, k=None):
         # Calculates and returns classVector
-        if k is None or k == self.k:
-            return self.classVector
         return self.calcClassVector(k)
