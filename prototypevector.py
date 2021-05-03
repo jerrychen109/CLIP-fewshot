@@ -60,7 +60,7 @@ class PrototypeVector():
             k = self.k
         tuples = []
         for key in self.labelsToPrototypes.keys():
-            similarity = similarityFunc(self.labelsToProtoypes[key].getClassVector(k), imageVector)
+            similarity = similarityFunc(self.labelsToPrototypes[key].getClassVector(k), imageVector)
             tuples.append((similarity, key))
         tuples.sort(reverse=True)
         return tuples[0][1], tuples
