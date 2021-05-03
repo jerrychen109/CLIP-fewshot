@@ -1,7 +1,9 @@
 import utils
 import numpy as np
+import torch
 from prototype import Prototype
-
+from utils.image_utils import *
+from utils.text_utils import *
 
 class PrototypeVector():
     def __init__(self, imageEncodeFunc, device, k=None, seed=1729):
@@ -49,10 +51,17 @@ class PrototypeVector():
         return self.labelsToPrototypes
 
     def getClassVectors(self, k=None):
-        if k is None or k == self.k:
+        if k is None:
             return self.allClassVectors
         return [key.getClassVector() for key in self.labelsToPrototypes.keys()]
 
-    def classify(self, images):
-        '''TODO: classify list of images'''
-        pass
+    def classify(self, similarityFunc, imageVector, k=self.k):
+        tuples = []
+        for key in self.labelsToPrototypes.keys():
+            similarity = similarityFunc(self.labelsToProtoypes[key].getClassVector(k), imageVector)
+            tuples.append((similarity, key))
+        tuples.sort(reverse=True)
+        return tuples[0][1], tuples
+                
+            
+            
