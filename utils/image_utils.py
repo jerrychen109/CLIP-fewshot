@@ -211,8 +211,7 @@ def imageToVector(image, device=device, image_mean=None, image_std=None):
         image_mean = torch.tensor(defImageMean, device=device)
     if image_std is None:
         image_std = torch.tensor(defImageStd, device=device)
-    image = image.copy()
-    image = torch.tensor(np.array(image), device=device)
+    image = image.clone()
     image -= image_mean
     image /= image_std
     image = encodeImageInModel(model, image)
