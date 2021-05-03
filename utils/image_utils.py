@@ -206,10 +206,10 @@ def encodeImageWithFunc(imageEncodeFunc, imageInput):
         image_features = imageEncodeFunc(imageInput).float()
     return image_features
 
-def imageToVector(image, device=device):
+def imageToVector(image, imageEncodeFunc, device=device):
     image = image.clone()
     image = torch.tensor(np.stack(image), device=device)
     image = standardize(image)
-    image = encodeImageInModel(model, image)
+    image = encodeImageWithFunc(imageEncodeFunc, image)
     image = normalize(image)
     return image[0]
