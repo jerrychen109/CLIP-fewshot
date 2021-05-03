@@ -66,7 +66,7 @@ def standardize(images, device=device, image_mean=None, image_std=None):
 #     image_input = torch.tensor(np.stack(images), device=device)
 #     image_input -= image_mean[:, None, None]
 #     image_input /= image_std[:, None, None]
-    images = images.copy()
+    images = images.clone()
     images -= image_mean[:, None, None]
     images /= image_std[:, None, None]
     return images
