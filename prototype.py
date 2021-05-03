@@ -15,9 +15,9 @@ class Prototype():
         self.rng = np.random.default_rng(seed)
         self.images = None
         self.STDImages = None  # tensor
-        self.vectors = None  # non-normalized, tensor
-        self.norm_vectors = None
-        self.classVector = None  # average of k vectors, numpy array
+        self.vectors = None  # non-normalized vectors, tensor
+        self.norm_vectors = None # normalized vectors, tensor
+        self.classVector = None  # average of k vectors, tensor
 
     def addLabel(self, label):
         self.label = label
