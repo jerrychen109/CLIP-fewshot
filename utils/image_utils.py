@@ -60,9 +60,9 @@ defImageStd = np.array([0.26862954, 0.26130258, 0.27577711])
 def standardize(images, device=device, image_mean=None, image_std=None):
     ''' Standardizes list of images'''
     if image_mean is None:
-        image_mean = getImageMean(images).to(device)
+        image_mean = getImageMean(images)
     if image_std is None:
-        image_std = getImageStd(images).to(device)
+        image_std = getImageStd(images)
 #     image_input = torch.tensor(np.stack(images), device=device)
 #     image_input -= image_mean[:, None, None]
 #     image_input /= image_std[:, None, None]
