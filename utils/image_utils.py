@@ -34,24 +34,24 @@ def preprocess(input_resolution=224):
 def getImageMean(images):
     ''' TODO: Gets image mean given a set of images.
     Inputs:
-    - images: a tensor of shape (N, H, W, D)
+    - images: a tensor of shape (N, D, H, W)
 
     Returns:
     - the mean pixel value across all images. Shape (D,)
     '''
-    return torch.mean(images, dim=(0, 1, 2))
+    return torch.mean(images, dim=(0, 2, 3))
 
 
 def getImageStd(images):
     ''' TODO: Gets image standard deviation given a set of images
 
     Inputs:
-    - images: a tensor of shape (N, H, W, D)
+    - images: a tensor of shape (N, D, H, W)
 
     Returns:
     - the pixel standard deviation across all images. Shape (D,)
     '''
-    return torch.std(images, dim=(0, 1, 2))
+    return torch.std(images, dim=(0, 2, 3))
 
 
 defImageMean = np.array([0.48145466, 0.4578275, 0.40821073])
@@ -60,9 +60,9 @@ defImageStd = np.array([0.26862954, 0.26130258, 0.27577711])
 def standardize(images, device=device, image_mean=None, image_std=None):
     ''' Standardizes list of images'''
     if image_mean is None:
-        image_mean = torch.tensor(defImageMean, device=device)
+        image_mean = getImageMean(images).to(device)
     if image_std is None:
-        image_std = torch.tensor(defImageStd, device=device)
+        image_std = getImageStd(images).to(device)
 #     image_input = torch.tensor(np.stack(images), device=device)
 #     image_input -= image_mean[:, None, None]
 #     image_input /= image_std[:, None, None]

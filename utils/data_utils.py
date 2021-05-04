@@ -1,7 +1,7 @@
 import os
 import pickle
 import torch
-
+import random
 
 def load_cifar10_batch(file):
     """ Unpickles a CIFAR-10 batch file. https://www.cs.toronto.edu/~kriz/cifar.html
@@ -18,7 +18,7 @@ def load_cifar10_batch(file):
     with open(file, 'rb') as fo:
         d = pickle.load(fo, encoding='bytes')
 
-    data = torch.tensor(d[b'data'])
+    data = torch.tensor(d[b'data']).float() / 255
     data = data.view(data.shape[0], 3, 32, 32)  # (N, W * H * 3)
     labels = torch.tensor(d[b'labels'])
     return data, labels
@@ -40,3 +40,11 @@ def load_cifar10(batch_paths):
     data = torch.cat([batch[0] for batch in batches])
     labels = torch.cat([batch[1] for batch in batches])
     return data, labels
+
+def sample_classes(data, labels, per_class = 100):
+    zipped = list(zip(data, labels))
+    class_dict = {}
+    for i in range(10):
+        class_dict[i] = torch.stack(random.sample([x[0] for x in zipped if x[1] == i], per_class))
+    return class_dict
+

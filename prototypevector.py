@@ -46,6 +46,10 @@ class PrototypeVector():
     def addPrototypes(self, setImages, labels):
         for images, label in zip(setImages, labels):
             self.addPrototype(images, label)
+
+    def addPrototypesFromDict(self, imageDict):
+        for c in imageDict:
+            self.addPrototype(imageDict[c], c)
             
     def getLabelsToPrototypes(self):
         return self.labelsToPrototypes
