@@ -57,13 +57,13 @@ class PrototypeVector():
     def getClassVectors(self, k=None):
         if k is None:
             k = self.k
-        return [value.getClassVector(k) for value in self.labelsToPrototypes.values()]
+        return [(key, value.getClassVector(k)) for key, value in self.labelsToPrototypes.items()]
 
     def classify(self, similarityFunc, imageVector, k=None):
         if k is None:
             k = self.k
         tuples = []
-        for vec in self.getClassVectors(k):
+        for key, vec in self.getClassVectors(k):
             similarity = similarityFunc(vec, imageVector)
             tuples.append((similarity, key))
         tuples.sort(reverse=True)
