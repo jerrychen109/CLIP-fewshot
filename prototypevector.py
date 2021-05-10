@@ -6,7 +6,7 @@ from utils.image_utils import *
 from utils.text_utils import *
 
 class PrototypeVector():
-    def __init__(self, imageEncodeFunc, device, k=None, seed=1729):
+    def __init__(self, imageEncodeFunc, device, image_mean, image_std, k=None, seed=1729):
         self.imageEncodeFunc = imageEncodeFunc
         self.device = device
         self.k = k
@@ -18,6 +18,8 @@ class PrototypeVector():
         self.allVectors = []
         self.allNormVectors = []
         self.allClassVectors = {}
+        self.image_mean = image_mean
+        self.image_std = image_std
 
     def addPrototypeWithFilenames(self, startdir, filenames, label):
         newPrototype = Prototype(self.imageEncodeFunc,
@@ -32,7 +34,7 @@ class PrototypeVector():
     def addPrototype(self, images, label):
         newPrototype = Prototype(self.imageEncodeFunc,
                                  self.device, label, self.k, self.seed)
-        newPrototype.addImages(images)
+        newPrototype.addImages(images, self.image_mean, self.image_std)
         self.addInfo(newPrototype, label)
 
     def addInfo(self, newPrototype, label):
