@@ -57,9 +57,9 @@ class Prototype():
 
     def addImages(self, images):
         if self.images is None:
-            self.images = torch.tensor(np.stack(images), device=self.device)
+            self.images = torch.tensor(np.stack(images), self.device)
         else:
-            self.images = torch.tensor(np.stack(self.images, images), device=self.device)
+            self.images = torch.tensor(np.stack(self.images, images), self.device)
         self.STDImages = standardize(self.images, self.device)
         self.vectors = encodeImageWithFunc(
             self.imageEncodeFunc, self.STDImages)
