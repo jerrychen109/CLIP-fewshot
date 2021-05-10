@@ -55,7 +55,7 @@ class Prototype():
         images = getImagesFromFiles(startDir, filenames)
         self.addImages(images)
 
-    def addImages(self, images):
+    def addImages(self, images, image_mean, image_std):
         if self.images is None:
             self.images = torch.tensor(np.stack(images), device=self.device)
         else:
