@@ -31,8 +31,8 @@ def preprocess(input_resolution=224):
     ])
 
 # Default values
-defImageMean = np.array([0.48145466, 0.4578275, 0.40821073])
-defImageStd = np.array([0.26862954, 0.26130258, 0.27577711])
+defImageMean = torch.tensor([0.48145466, 0.4578275, 0.40821073], device=device)
+defImageStd = torch.tensor([0.26862954, 0.26130258, 0.27577711], device=device)
 
 def getImageMean(images):
     ''' TODO: Gets image mean given a set of images.
