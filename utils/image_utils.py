@@ -42,7 +42,7 @@ def getImageMean(images):
     Returns:
     - the mean pixel value across all images. Shape (D,)
     '''
-    defImageMean = torch.mean(images, dim=(0, 2, 3))
+    global defImageMean = torch.mean(images, dim=(0, 2, 3))
     return defImageMean
 
 def getImageStd(images):
@@ -54,7 +54,7 @@ def getImageStd(images):
     Returns:
     - the pixel standard deviation across all images. Shape (D,)
     '''
-    defImageStd = torch.std(images, dim=(0, 2, 3))
+    global defImageStd = torch.std(images, dim=(0, 2, 3))
     return defImageStd
 
 def standardize(images, device=device):
