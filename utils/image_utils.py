@@ -10,12 +10,10 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 def resize_images(images, height=224, width=224):
     """ Up/downscales images to the given width and height.
-
     Inputs:
     - images: a PyTorch tensor shaped (N, D, H, W)
     - height: the new height
     - width: the new width
-
     Returns:
     - the resized images, shaped (N, D, height, width)
     """
@@ -30,43 +28,42 @@ def preprocess(input_resolution=224):
         ToTensor()
     ])
 
-# Default values
-defImageMean = torch.tensor([0.48145466, 0.4578275, 0.40821073], device=device)
-defImageStd = torch.tensor([0.26862954, 0.26130258, 0.27577711], device=device)
 
 def getImageMean(images):
     ''' TODO: Gets image mean given a set of images.
     Inputs:
     - images: a tensor of shape (N, D, H, W)
-
     Returns:
     - the mean pixel value across all images. Shape (D,)
     '''
-    global defImageMean
-    defImageMean = torch.mean(images, dim=(0, 2, 3)).cuda()
-    return defImageMean
+    return torch.mean(images, dim=(0, 2, 3)).cuda()
+
 
 def getImageStd(images):
     ''' TODO: Gets image standard deviation given a set of images
-
     Inputs:
     - images: a tensor of shape (N, D, H, W)
-
     Returns:
     - the pixel standard deviation across all images. Shape (D,)
     '''
-    global defImageStd
-    defImageStd = torch.std(images, dim=(0, 2, 3)).cuda()
-    return defImageStd
+    return torch.std(images, dim=(0, 2, 3)).cuda()
 
-def standardize(images, device=device):
+
+defImageMean = np.array([0.48145466, 0.4578275, 0.40821073])
+defImageStd = np.array([0.26862954, 0.26130258, 0.27577711])
+
+def standardize(images, device=device, image_mean=None, image_std=None):
     ''' Standardizes list of images'''
+    if image_mean is None:
+        image_mean = getImageMean(images)
+    if image_std is None:
+        image_std = getImageStd(images)
 #     image_input = torch.tensor(np.stack(images), device=device)
 #     image_input -= image_mean[:, None, None]
 #     image_input /= image_std[:, None, None]
     images = images.clone()
-    images -= defImageMean[:, None, None]
-    images /= defImageStd[:, None, None]
+    images -= image_mean[:, None, None]
+    images /= image_std[:, None, None]
     return images
 
 
