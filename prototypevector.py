@@ -17,7 +17,7 @@ class PrototypeVector():
         self.allSTDImages = []
         self.allVectors = []
         self.allNormVectors = []
-        self.allClassVectors = []
+        self.allClassVectors = {}
 
     def addPrototypeWithFilenames(self, startdir, filenames, label):
         newPrototype = Prototype(self.imageEncodeFunc,
@@ -40,7 +40,7 @@ class PrototypeVector():
         self.allSTDImages.append(newPrototype.getSTDImages().cpu().numpy())
         self.allVectors.append(newPrototype.getVectors().cpu().numpy())
         self.allNormVectors.append(newPrototype.getNormVectors().cpu().numpy())
-        self.allClassVectors.append(newPrototype.getClassVector(self.k).cpu().numpy())
+        #self.allClassVectors.append(newPrototype.getClassVector(self.k).cpu().numpy())
         self.labelsToPrototypes[label] = newPrototype
 
     def addPrototypes(self, setImages, labels):
@@ -57,17 +57,40 @@ class PrototypeVector():
     def getClassVectors(self, k=None):
         if k is None:
             k = self.k
-        return [(key, value.getClassVector(k)) for key, value in self.labelsToPrototypes.items()]
+        self.allClassVectors[k] = {}
+        for key, value in self.labelsToPrototypes.items():
+            self.allClassVectors[k][key] = value.getClassVector(k)
+        return self.allClassVectors[k]
 
-    def classify(self, similarityFunc, imageVector, k=None):
+#     def classify(self, similarityFunc, imageVector, k=None):
+#         if k is None:
+#             k = self.k
+#         tuples = []
+#         for key, vec in self.getClassVectors(k):
+#             similarity = similarityFunc(vec, imageVector)
+#             tuples.append((similarity, key))
+#         tuples.sort(reverse=True)
+#         return tuples[0][1], tuples
+    
+    def classifyImages(self, similarityFunc, imageVectors, k=None, recalc=False):
         if k is None:
             k = self.k
+    
+        # Add new {k: dict} if doesn't already exist or replace old if recalculating
+        if k not in self.allClassVectors or recalc == True:
+            self.getClassVectors(k)
+                
         tuples = []
-        for key, vec in self.getClassVectors(k):
-            similarity = similarityFunc(vec, imageVector)
-            tuples.append((similarity, key))
-        tuples.sort(reverse=True)
-        return tuples[0][1], tuples
+        for imageVector in imageVectors:
+            maxsim = 0.0
+            maxlabel = ""
+            for label, classvec in self.allClassVectors[k].items():
+                similarity = similarityFunc(classvec, imageVector)
+                if similarity > maxsim:
+                    maxsim = similarity
+                    maxlabel = label
+            tuples.append((maxlabel, maxsim))
+        return tuples
                 
             
             
