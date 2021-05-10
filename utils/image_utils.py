@@ -167,7 +167,7 @@ def graphImagesSoftmax(images, labels, image_features, label_features):
         plt.imshow(image.permute(1, 2, 0))
         plt.axis("off")
 
-        plt.subplot(4, 4, 2 * i + 2)
+        plt.subplot(height, width*2, 2 * i + 2)
         y = np.arange(top_probs.shape[-1])
         plt.grid()
         plt.barh(y, top_probs[i])
