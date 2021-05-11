@@ -109,7 +109,7 @@ def graphImages(images, texts=None, descriptions=None):
 
 
 def normalize(features):
-    features /= np.linalg.norm(features, axis=0) #features.norm(dim=-1, keepdim=True)
+    features /= features.norm(dim=-1, keepdim=True)
     return features
 
 
