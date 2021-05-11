@@ -35,8 +35,9 @@ class Prototype():
     def calcClassVector(self, k=None):
         if k is None:
             k = self.k
-        self.kVectors = self.rng.choice(self.norm_vectors.cpu().numpy(), k, replace=False)
-        return torch.tensor(self.kVectors.mean(axis=0), device=self.device)
+        self.kVectors = torch.tensor(self.rng.choice(self.norm_vectors.cpu().numpy(), k, replace=False), device=self.device)
+        self.classVector = torch.tensor(self.kVectors.mean(axis=0), device=self.device)
+        return self.kVectors, self.classVector
 
     #     # Normalizes random k vectors and sets classVectors
     #     if k is None:
@@ -97,13 +98,13 @@ class Prototype():
         # Calculates and returns kVectors
         if k is None:
             k = self.k
-        return self.kVectors
+        return self.calcClassVector(k)[0]
 
     def getClassVector(self, k=None):
         # Calculates and returns classVector
         if k is None:
             k = self.k
-        return self.calcClassVector(k)
+        return self.calcClassVector(k)[1]
     
     def getKClassVectors(self, k=None):
         # Calculates and returns classVector
