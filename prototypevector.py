@@ -41,8 +41,8 @@ class PrototypeVector():
     def addInfo(self, newPrototype, label):
 #         self.allImages.append(newPrototype.getImages().cpu().numpy())
 #         self.allSTDImages.append(newPrototype.getSTDImages().cpu().numpy())
-        self.allVectors.append(newPrototype.getVectors().cpu().numpy())
-        self.allNormVectors.append(newPrototype.getNormVectors().cpu().numpy())
+        self.allVectors.append(newPrototype.getVectors())
+        self.allNormVectors.append(newPrototype.getNormVectors())
         #self.allClassVectors.append(newPrototype.getClassVector(self.k).cpu().numpy())
         self.labelsToPrototypes[label] = newPrototype
 
