@@ -203,7 +203,7 @@ def encodeImageWithFunc(imageEncodeFunc, imageInput):
 def imageToVector(image, imageEncodeFunc, device=device, image_mean=None, image_std=None):
     image = torch.tensor(np.stack(image), device=device)
     image = resize_images(standardize(image, device=device, image_mean=image_mean, image_std=image_std).unsqueeze(0))
-    imageVectors = encodeImageWithFunc(model.encode_image, image).squeeze()
+    imageVectors = encodeImageWithFunc(imageEncodeFunc, image).squeeze()
     normImageVectors = normalize(imageVector)
     return imageVector, normImageVector
 
@@ -211,6 +211,6 @@ def imageToVector(image, imageEncodeFunc, device=device, image_mean=None, image_
 def imagesToVector(images, imageEncodeFunc, device=device, image_mean=None, image_std=None):
     images = torch.tensor(np.stack(images), device=device)
     images = resize_images(standardize(images, device=device, image_mean=image_mean, image_std=image_std))
-    imageVectors = encodeImageWithFunc(model.encode_image, images)
+    imageVectors = encodeImageWithFunc(imageEncodeFunc, images)
     normImageVectors = np.array(map(lambda imageVector: normalize(imageVector), imageVectors))
     return imageVectors, normImageVectors
