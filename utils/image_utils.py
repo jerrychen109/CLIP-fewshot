@@ -199,10 +199,9 @@ def encodeImageWithFunc(imageEncodeFunc, imageInput, device=device):
     return image_features
 
 
-def imageToVector(image, imageEncodeFunc, image_mean=None, image_std=None, device=device):
+def imageToVector(image, imageEncodeFunc, device=device):
     """ Encodes an image given as a (3, H, W) PyTorch tensor.
     The image should already be standardized and resized as a valid input to the image encoder.
-
     Returns two PyTorch tensors:
     - imageVector: the raw encoded image
     - normImageVector: normalized imageVector
@@ -213,10 +212,9 @@ def imageToVector(image, imageEncodeFunc, image_mean=None, image_std=None, devic
     return imageVector, normImageVector
 
 
-def imagesToVector(images, imageEncodeFunc, image_mean=None, image_std=None, device=device):
+def imagesToVector(images, imageEncodeFunc, device=device):
     """ Encodes a batch of images given as a (N, 3, H, W) PyTorch tensor.
     The images should already be standardized and resized as a valid input to the image encoder.
-
     Returns two PyTorch tensors:
     - imageVectors: the raw encoded images
     - normImageVectors: normalized imageVectors

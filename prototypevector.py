@@ -35,7 +35,7 @@ class PrototypeVector():
     def addPrototype(self, images, label):
         newPrototype = Prototype(self.imageEncodeFunc,
                                  self.device, label, self.k, self.seed)
-        newPrototype.addImages(images, self.image_mean, self.image_std)
+        newPrototype.addImages(images)
         self.addInfo(newPrototype, label)
 
     def addInfo(self, newPrototype, label):

@@ -57,32 +57,11 @@ class Prototype():
         images = getImagesFromFiles(startDir, filenames)
         self.addImages(images)
 
-    def addImages(self, images, image_mean, image_std):
-#         if self.images is None:
-#             self.images = torch.tensor(np.stack(images), device=self.device)
-#         else:
-#             self.images = torch.tensor(np.stack(self.images, images), device=self.device)
-        self.vectors, self.norm_vectors = imagesToVector(images, self.imageEncodeFunc, device=self.device, image_mean=image_mean, image_std=image_std)
+    def addImages(self, images):
+        """ Adds a batch of images, shape (N, 3, H, W), to the Prototype.
+        """
+        self.vectors, self.norm_vectors = imagesToVector(images, self.imageEncodeFunc, device=self.device)
         self.kVectors, self.classVector = self.calcClassVector()
-        # self.images.append(images)
-
-    # def addSTDImage(self, STDImage):
-    #     if self.STDImages is None:
-    #         self.STDImages = STDImage
-    #     else:
-    #         self.STDImages = torch.cat((self.STDImages, STDImage), 0)
-
-    # def addVector(self, image_vector):
-    #     if self.vectors is None:
-    #         self.vectors = image_vector
-    #     else:
-    #         self.vectors = torch.cat((self.vectors, image_vector), 0)
-
-#     def getImages(self):
-#         return self.images
-
-#     def getSTDImages(self):
-#         return self.STDImages
 
     def getVectors(self):
         return self.vectors
@@ -107,3 +86,4 @@ class Prototype():
         if k is None:
             k = self.k
         return self.calcClassVector(k)
+
