@@ -200,7 +200,7 @@ def encodeImageWithFunc(imageEncodeFunc, imageInput):
     return image_features
 
 
-def imagesToVector(images, imageEncodeFunc, device=device, image_mean=None, image_std=None):
+def imageToVector(image, imageEncodeFunc, device=device, image_mean=None, image_std=None):
     image = torch.tensor(np.stack(image), device=device)
     image = resize_images(standardize(image, device=device, image_mean=image_mean, image_std=image_std).unsqueeze(0))
     imageVectors = encodeImageWithFunc(model.encode_image, image).squeeze()
