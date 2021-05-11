@@ -62,11 +62,7 @@ class Prototype():
 #             self.images = torch.tensor(np.stack(images), device=self.device)
 #         else:
 #             self.images = torch.tensor(np.stack(self.images, images), device=self.device)
-        images = torch.tensor(np.stack(self.images, images), device=self.device)
-        STDImages = standardize(self.images, self.device, image_mean, image_std)
-        self.vectors = encodeImageWithFunc(
-            self.imageEncodeFunc, STDImages)
-        self.norm_vectors = normalize(self.vectors)
+        self.vectors, self.norm_vectors = imagesToVector(images, self.imageEncodeFunc, device=self.device, image_mean=image_mean, image_std=image_std)
         self.kVectors, self.classVector = self.calcClassVector()
         # self.images.append(images)
 
