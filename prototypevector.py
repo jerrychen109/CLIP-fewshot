@@ -18,6 +18,7 @@ class PrototypeVector():
         self.allVectors = []
         self.allNormVectors = []
         self.allClassVectors = {}
+        self.allKVectors = {}
         self.image_mean = image_mean
         self.image_std = image_std
 
@@ -60,21 +61,22 @@ class PrototypeVector():
         if k is None:
             k = self.k
         self.allClassVectors[k] = {}
+        self.allKVectors[k] = {}
         for key, value in self.labelsToPrototypes.items():
-            self.allClassVectors[k][key] = value.getClassVector(k)
-        return self.allClassVectors[k]
+            self.allKVectors[k][key], self.allClassVectors[k][key] = value.getKClassVectors(k)
+        return self.allKVectors[k], self.allClassVectors[k]
 
 #     def classify(self, similarityFunc, imageVector, k=None):
 #         if k is None:
 #             k = self.k
 #         tuples = []
-#         for key, vec in self.getClassVectors(k):
+#         for key, vec in self.getClassVectors(k)[1]:
 #             similarity = similarityFunc(vec, imageVector)
 #             tuples.append((similarity, key))
 #         tuples.sort(reverse=True)
 #         return tuples[0][1], tuples
     
-    def classifyImages(self, similarityFunc, imageVectors, k=None, recalc=False):
+    def classifyImagesWithClassVector(self, similarityFunc, imageVectors, k=None, recalc=False):
         if k is None:
             k = self.k
     
@@ -82,7 +84,7 @@ class PrototypeVector():
         if k not in self.allClassVectors or recalc == True:
             self.getClassVectors(k)
                 
-        tuples = []
+        tupleList = []
         for imageVector in imageVectors:
             maxsim = 0.0
             maxlabel = ""
@@ -91,8 +93,26 @@ class PrototypeVector():
                 if similarity > maxsim:
                     maxsim = similarity
                     maxlabel = label
-            tuples.append((maxlabel, maxsim))
-        return tuples
+            tupleList.append((maxlabel, maxsim))
+        return tupleList
+    
+    def distancesWithKVectors(self, similarityFunc, imageVectors, k=None, recalc=False):
+        if k is None:
+            k = self.k
+    
+        # Add new {k: dict} if doesn't already exist or replace old if recalculating
+        if k not in self.allClassVectors or recalc == True:
+            self.getClassVectors(k)
+                
+        tupleList = []
+        for imageVector in imageVectors:
+            simlabels = []
+            for label, kvecs in self.allKVectors[k].items():
+                for kvec in kvecs:
+                similarity = similarityFunc(kvec, imageVector)
+                simlabels.append((label, sim))
+            tupleList.append(simlabels)
+        return tupleList
                 
             
             
