@@ -18,6 +18,7 @@ class Prototype():
         self.vectors = None  # non-normalized vectors, tensor
         self.norm_vectors = None # normalized vectors, tensor
         self.classVector = None  # average of k vectors, tensor
+        self.kVectors = None # the k vectors that make up self.classVector, tensor
 
     def addLabel(self, label):
         self.label = label
@@ -34,7 +35,8 @@ class Prototype():
     def calcClassVector(self, k=None):
         if k is None:
             k = self.k
-        return torch.tensor(self.rng.choice(self.norm_vectors.cpu().numpy(), k, replace=False).mean(axis=0), device=self.device)
+        self.kVectors = self.rng.choice(self.norm_vectors.cpu().numpy(), k, replace=False)
+        return torch.tensor(self.kVectors.mean(axis=0), device=self.device)
 
     #     # Normalizes random k vectors and sets classVectors
     #     if k is None:
@@ -90,8 +92,20 @@ class Prototype():
 
     def getNormVectors(self):
         return self.norm_vectors
+    
+    def getKVectors(self, k=None):
+        # Calculates and returns kVectors
+        if k is None:
+            k = self.k
+        return self.kVectors
 
     def getClassVector(self, k=None):
+        # Calculates and returns classVector
+        if k is None:
+            k = self.k
+        return self.calcClassVector(k)
+    
+    def getKClassVectors(self, k=None):
         # Calculates and returns classVector
         if k is None:
             k = self.k
