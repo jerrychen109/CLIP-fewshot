@@ -4,7 +4,6 @@ import torch
 from utils.text_utils import *
 from utils.image_utils import standardize, encodeImageWithFunc, normalize, getImagesFromFiles
 
-
 class Prototype():
     def __init__(self, imageEncodeFunc, device, label=None, k=None, seed=1729):
         self.imageEncodeFunc = imageEncodeFunc
@@ -13,8 +12,8 @@ class Prototype():
         self.k = k
         self.seed = seed
         self.rng = np.random.default_rng(seed)
-        self.images = None
-        self.STDImages = None  # tensor
+#         self.images = None
+#         self.STDImages = None  # tensor
         self.vectors = None  # non-normalized vectors, tensor
         self.norm_vectors = None # normalized vectors, tensor
         self.classVector = None  # average of k vectors, tensor
@@ -59,13 +58,14 @@ class Prototype():
         self.addImages(images)
 
     def addImages(self, images, image_mean, image_std):
-        if self.images is None:
-            self.images = torch.tensor(np.stack(images), device=self.device)
-        else:
-            self.images = torch.tensor(np.stack(self.images, images), device=self.device)
-        self.STDImages = standardize(self.images, self.device, image_mean, image_std)
+#         if self.images is None:
+#             self.images = torch.tensor(np.stack(images), device=self.device)
+#         else:
+#             self.images = torch.tensor(np.stack(self.images, images), device=self.device)
+        images = torch.tensor(np.stack(self.images, images), device=self.device)
+        STDImages = standardize(self.images, self.device, image_mean, image_std)
         self.vectors = encodeImageWithFunc(
-            self.imageEncodeFunc, self.STDImages)
+            self.imageEncodeFunc, STDImages)
         self.norm_vectors = normalize(self.vectors)
         self.kVectors, self.classVector = self.calcClassVector()
         # self.images.append(images)
@@ -82,11 +82,11 @@ class Prototype():
     #     else:
     #         self.vectors = torch.cat((self.vectors, image_vector), 0)
 
-    def getImages(self):
-        return self.images
+#     def getImages(self):
+#         return self.images
 
-    def getSTDImages(self):
-        return self.STDImages
+#     def getSTDImages(self):
+#         return self.STDImages
 
     def getVectors(self):
         return self.vectors
