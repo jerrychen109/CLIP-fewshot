@@ -14,10 +14,10 @@ class Prototype():
         self.rng = np.random.default_rng(seed)
 #         self.images = None
 #         self.STDImages = None  # tensor
-        self.vectors = None  # non-normalized vectors, tensor
-        self.norm_vectors = None # normalized vectors, tensor
-        self.classVector = None  # average of k vectors, tensor
-        self.kVectors = None # the k vectors that make up self.classVector, tensor
+        self.vectors = None  # non-normalized vectors, np.array
+        self.norm_vectors = None # normalized vectors, np.array
+        self.classVector = None  # average of k vectors, np.array
+        self.kVectors = None # the k vectors that make up self.classVector, np.array
 
     def addLabel(self, label):
         self.label = label
@@ -34,8 +34,8 @@ class Prototype():
     def calcClassVector(self, k=None):
         if k is None:
             k = self.k
-        self.kVectors = torch.tensor(self.rng.choice(self.norm_vectors.cpu().numpy(), k, replace=False), device=self.device)
-        self.classVector = torch.tensor(self.kVectors.mean(axis=0), device=self.device)
+        self.kVectors = self.rng.choice(self.norm_vectors, k, replace=False)
+        self.classVector = self.kVectors.mean(axis=0)
         return self.kVectors, self.classVector
 
     #     # Normalizes random k vectors and sets classVectors
