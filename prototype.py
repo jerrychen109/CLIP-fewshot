@@ -34,7 +34,7 @@ class Prototype():
     def calcClassVector(self, k=None):
         if k is None:
             k = self.k
-        self.kVectors = torch.tensor(self.rng.choice(self.norm_vectors.cpu().numpy(), k, replace=False), device=self.device)
+        self.kVectors = torch.tensor(self.rng.choice(self.norm_vectors, k, replace=False), device=self.device)
         self.classVector = torch.tensor(self.kVectors.mean(axis=0), device=self.device)
         return self.kVectors, self.classVector
 
