@@ -212,5 +212,5 @@ def imagesToVector(images, imageEncodeFunc, device=device, image_mean=None, imag
     images = torch.tensor(np.stack(images), device=device)
     images = resize_images(standardize(images, device=device, image_mean=image_mean, image_std=image_std))
     imageVectors = encodeImageWithFunc(imageEncodeFunc, images)
-    normImageVectors = torch.stack(map(lambda imageVector: normalize(imageVector), imageVectors))
+    normImageVectors = torch.stack(np.array(map(lambda imageVector: normalize(imageVector), imageVectors)))
     return imageVectors, normImageVectors
