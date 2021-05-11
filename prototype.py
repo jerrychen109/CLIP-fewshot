@@ -35,7 +35,7 @@ class Prototype():
         if k is None:
             k = self.k
         self.kVectors = torch.tensor(self.rng.choice(self.norm_vectors.cpu().numpy(), k, replace=False), device=self.device)
-        self.classVector = torch.tensor(self.kVectors.mean(axis=0), device=self.device)
+        self.classVector = self.kVectors.mean(axis=0)
         return self.kVectors, self.classVector
 
     #     # Normalizes random k vectors and sets classVectors
