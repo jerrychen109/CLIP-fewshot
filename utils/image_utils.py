@@ -116,7 +116,7 @@ def normalize(features):
 def cosineSimilarity(features1, features2):
     norm_features1 = normalize(features1)
     norm_features2 = normalize(features2)
-    similarity = norm_features1.cpu().numpy() @ norm_features2.cpu().numpy().T
+    similarity = norm_features1 @ norm_features2.T
     return similarity
 
 def softmax(features1, features2):
