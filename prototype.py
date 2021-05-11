@@ -67,7 +67,7 @@ class Prototype():
         self.vectors = encodeImageWithFunc(
             self.imageEncodeFunc, self.STDImages)
         self.norm_vectors = normalize(self.vectors)
-        self.classVector = self.calcClassVector()
+        self.kVectors, self.classVector = self.calcClassVector()
         # self.images.append(images)
 
     # def addSTDImage(self, STDImage):
