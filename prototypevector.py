@@ -109,7 +109,7 @@ class PrototypeVector():
             simlabels = []
             for label, kvecs in self.allKVectors[k].items():
                 for kvec in kvecs:
-                    similarity = similarityFunc(kvec, imageVector)
+                    sim = similarityFunc(kvec, imageVector)
                     simlabels.append((sim, label))
             simlabels = sorted(simlabels, reverse=True)
             tupleList.append(simlabels)
