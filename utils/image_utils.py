@@ -191,9 +191,7 @@ def extractSubplotSize(imageNum):
 
 
 def encodeImageInModel(model, imageInput):
-    with torch.no_grad():
-        image_features = model.encode_image(imageInput).float()
-    return image_features
+    return encodeImageWithFunc(model.encode_image, imageInput)
 
 
 def encodeImageWithFunc(imageEncodeFunc, imageInput):
@@ -201,10 +199,18 @@ def encodeImageWithFunc(imageEncodeFunc, imageInput):
         image_features = imageEncodeFunc(imageInput).float()
     return image_features
 
-def imageToVector(image, imageEncodeFunc, device=device):
-    image = image.clone()
+
+def imagesToVector(images, imageEncodeFunc, device=device, image_mean=None, image_std=None):
     image = torch.tensor(np.stack(image), device=device)
-    image = standardize(image)
-    image = encodeImageWithFunc(imageEncodeFunc, image)
-    image = normalize(image)
-    return image[0]
+    image = resize_images(standardize(image, device=device, image_mean=image_mean, image_std=image_std).unsqueeze(0))
+    imageVectors = encodeImageWithFunc(model.encode_image, image).squeeze()
+    normImageVectors = normalize(imageVector)
+    return imageVector, normImageVector
+
+
+def imagesToVector(images, imageEncodeFunc, device=device, image_mean=None, image_std=None):
+    images = torch.tensor(np.stack(images), device=device)
+    images = resize_images(standardize(images, device=device, image_mean=image_mean, image_std=image_std))
+    imageVectors = encodeImageWithFunc(model.encode_image, images)
+    normImageVectors = np.array(map(lambda imageVector: normalize(imageVector), imageVectors))
+    return imageVectors, normImageVectors
