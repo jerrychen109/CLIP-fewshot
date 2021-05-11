@@ -205,12 +205,12 @@ def imageToVector(image, imageEncodeFunc, device=device, image_mean=None, image_
     image = resize_images(standardize(image, device=device, image_mean=image_mean, image_std=image_std).unsqueeze(0))
     imageVectors = encodeImageWithFunc(imageEncodeFunc, image).squeeze()
     normImageVectors = torch.Tensor(normalize(imageVector), dtype=torch.float32, device=device)
-    return imageVector, normImageVector
+    return imageVector.cpu().numpy(), normImageVector.cpu().numpy()
 
 
 def imagesToVector(images, imageEncodeFunc, device=device, image_mean=None, image_std=None):
-    images = torch.tensor(np.stack(images), device=device)
+    images = torch.tensor(np.stack(images.clone()), device=device) # Allow this copy of images to be removed after function exits
     images = resize_images(standardize(images, device=device, image_mean=image_mean, image_std=image_std))
     imageVectors = encodeImageWithFunc(imageEncodeFunc, images)
     normImageVectors = torch.stack(list(map(lambda imageVector: normalize(imageVector), imageVectors)))
-    return imageVectors, normImageVectors
+    return imageVectors.cpu().numpy(), normImageVectors.cpu().numpy()
