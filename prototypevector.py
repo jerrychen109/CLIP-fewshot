@@ -13,8 +13,8 @@ class PrototypeVector():
         self.seed = seed
         self.rng = np.random.default_rng(seed)
         self.labelsToPrototypes = {}
-        self.allImages = []
-        self.allSTDImages = []
+#         self.allImages = []
+#         self.allSTDImages = []
         self.allVectors = []
         self.allNormVectors = []
         self.allClassVectors = {}
@@ -39,8 +39,8 @@ class PrototypeVector():
         self.addInfo(newPrototype, label)
 
     def addInfo(self, newPrototype, label):
-        self.allImages.append(newPrototype.getImages().cpu().numpy())
-        self.allSTDImages.append(newPrototype.getSTDImages().cpu().numpy())
+#         self.allImages.append(newPrototype.getImages().cpu().numpy())
+#         self.allSTDImages.append(newPrototype.getSTDImages().cpu().numpy())
         self.allVectors.append(newPrototype.getVectors().cpu().numpy())
         self.allNormVectors.append(newPrototype.getNormVectors().cpu().numpy())
         #self.allClassVectors.append(newPrototype.getClassVector(self.k).cpu().numpy())
