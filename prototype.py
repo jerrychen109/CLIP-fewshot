@@ -2,7 +2,7 @@ import utils
 import numpy as np
 import torch
 from utils.text_utils import *
-from utils.image_utils import standardize, encodeImageWithFunc, normalize, getImagesFromFiles
+from utils.image_utils import standardize, encodeImageWithFunc, normalize, getImagesFromFiles, imagesToVector
 
 class Prototype():
     def __init__(self, imageEncodeFunc, device, label=None, k=None, seed=1729):
