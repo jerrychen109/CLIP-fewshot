@@ -77,6 +77,18 @@ class PrototypeVector():
 #         return tuples[0][1], tuples
     
     def classifyImagesWithClassVector(self, similarityFunc, imageVectors, k=None, recalc=False):
+        """ Classifies the given image vectors using the closest class template based on the
+        provided similarity function.
+
+        Inputs:
+        - similarityFunc: the similarity function for comparing two vectors with the same dims
+        - imageVectors: a list of image vectors to classify
+        - k: the number of training images to use to generate class templates
+        - recalc: whether or not to generate new class templates
+
+        Returns:
+        - a list of (label, score) tuples of the same length as imageVectors
+        """
         if k is None:
             k = self.k
     

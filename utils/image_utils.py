@@ -30,37 +30,35 @@ def preprocess(input_resolution=224):
 
 
 def getImageMean(images):
-    ''' TODO: Gets image mean given a set of images.
+    ''' Gets image mean given a set of images.
     Inputs:
     - images: a tensor of shape (N, D, H, W)
     Returns:
     - the mean pixel value across all images. Shape (D,)
     '''
-    return torch.mean(images, dim=(0, 2, 3)).cuda()
+    return torch.mean(images, dim=(0, 2, 3))
 
 
 def getImageStd(images):
-    ''' TODO: Gets image standard deviation given a set of images
+    ''' Gets image standard deviation given a set of images
     Inputs:
     - images: a tensor of shape (N, D, H, W)
     Returns:
     - the pixel standard deviation across all images. Shape (D,)
     '''
-    return torch.std(images, dim=(0, 2, 3)).cuda()
+    return torch.std(images, dim=(0, 2, 3))
 
 
 defImageMean = np.array([0.48145466, 0.4578275, 0.40821073])
 defImageStd = np.array([0.26862954, 0.26130258, 0.27577711])
 
-def standardize(images, device=device, image_mean=None, image_std=None):
+def standardize(images, image_mean=None, image_std=None):
     ''' Standardizes list of images'''
     if image_mean is None:
         image_mean = getImageMean(images)
     if image_std is None:
         image_std = getImageStd(images)
-#     image_input = torch.tensor(np.stack(images), device=device)
-#     image_input -= image_mean[:, None, None]
-#     image_input /= image_std[:, None, None]
+
     images = images.clone()
     images -= image_mean[:, None, None]
     images /= image_std[:, None, None]
@@ -190,27 +188,39 @@ def extractSubplotSize(imageNum):
     return (1, imageNum)
 
 
-def encodeImageInModel(model, imageInput):
-    return encodeImageWithFunc(model.encode_image, imageInput)
+def encodeImageInModel(model, imageInput, device=device):
+    return encodeImageWithFunc(model.encode_image, imageInput, device)
 
 
-def encodeImageWithFunc(imageEncodeFunc, imageInput):
+def encodeImageWithFunc(imageEncodeFunc, imageInput, device=device):
     with torch.no_grad():
+        imageInput = imageInput.to(device)
         image_features = imageEncodeFunc(imageInput).float()
     return image_features
 
 
-def imageToVector(image, imageEncodeFunc, device=device, image_mean=None, image_std=None):
-    image = torch.tensor(np.stack(image), device=device)
-    image = resize_images(standardize(image, device=device, image_mean=image_mean, image_std=image_std).unsqueeze(0))
-    imageVectors = encodeImageWithFunc(imageEncodeFunc, image).squeeze()
-    normImageVectors = torch.Tensor(normalize(imageVector), dtype=torch.float32, device=device)
+def imageToVector(image, imageEncodeFunc, image_mean=None, image_std=None, device=device):
+    """ Encodes an image given as a (3, H, W) PyTorch tensor.
+    The image should already be standardized and resized as a valid input to the image encoder.
+
+    Returns two PyTorch tensors:
+    - imageVector: the raw encoded image
+    - normImageVector: normalized imageVector
+    """
+    image = image.unsqueeze(0) # because imageEncodeFunc expects a batch
+    imageVector = encodeImageWithFunc(imageEncodeFunc, image, device).squeeze()
+    normImageVector = torch.tensor(normalize(imageVector), dtype=torch.float32)
     return imageVector, normImageVector
 
 
-def imagesToVector(images, imageEncodeFunc, device=device, image_mean=None, image_std=None):
-    images = torch.tensor(np.stack(images), device=device)
-    images = resize_images(standardize(images, device=device, image_mean=image_mean, image_std=image_std))
-    imageVectors = encodeImageWithFunc(imageEncodeFunc, images)
+def imagesToVector(images, imageEncodeFunc, image_mean=None, image_std=None, device=device):
+    """ Encodes a batch of images given as a (N, 3, H, W) PyTorch tensor.
+    The images should already be standardized and resized as a valid input to the image encoder.
+
+    Returns two PyTorch tensors:
+    - imageVectors: the raw encoded images
+    - normImageVectors: normalized imageVectors
+    """
+    imageVectors = encodeImageWithFunc(imageEncodeFunc, images, device)
     normImageVectors = torch.stack(list(map(lambda imageVector: normalize(imageVector), imageVectors)))
     return imageVectors, normImageVectors
