@@ -69,6 +69,9 @@ class Prototype():
     def getNormVectors(self):
         return self.norm_vectors
     
+    def getRandomNormVector(self):
+        return self.rng.choice(self.norm_vectors)
+    
     def getKVectors(self, k=None):
         # Calculates and returns kVectors
         if k is None:
