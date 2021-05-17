@@ -17,6 +17,7 @@ class PrototypeVector():
 #         self.allSTDImages = []
         self.allVectors = []
         self.allNormVectors = []
+        self.allTextVectors = {}
         self.allClassVectors = {}
         self.allKVectors = {}
         self.image_mean = image_mean
@@ -49,6 +50,9 @@ class PrototypeVector():
     def addPrototypes(self, setImages, labels):
         for images, label in zip(setImages, labels):
             self.addPrototype(images, label)
+            
+    def addTextVectors(self, textDict):
+        self.allTextVectors = textDict
 
     def addPrototypesFromDict(self, imageDict):
         for c in imageDict:
@@ -76,7 +80,7 @@ class PrototypeVector():
 #         tuples.sort(reverse=True)
 #         return tuples[0][1], tuples
     
-    def classifyImagesWithClassVector(self, similarityFunc, imageVectors, k=None, recalc=False):
+    def classifyImagesWithClassVector(self, similarityFunc, imageVectors, k=None, recalc=False, bimodal=False):
         """ Classifies the given image vectors using the closest class template based on the
         provided similarity function.
 
@@ -85,6 +89,7 @@ class PrototypeVector():
         - imageVectors: a list of image vectors to classify
         - k: the number of training images to use to generate class templates
         - recalc: whether or not to generate new class templates
+        - bidomal: whether or not to use text vector weighted 50/50
 
         Returns:
         - a list of (label, score) tuples of the same length as imageVectors
@@ -101,6 +106,8 @@ class PrototypeVector():
             maxsim = 0.0
             maxlabel = ""
             for label, classvec in self.allClassVectors[k].items():
+                if bimodal:
+                    classvec = classvec*0.5 + self.allTextVectors[label]*0.5
                 similarity = similarityFunc(classvec, imageVector)
                 if similarity > maxsim:
                     maxsim = similarity
