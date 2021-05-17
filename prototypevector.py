@@ -126,6 +126,12 @@ class PrototypeVector():
             simlabels = sorted(simlabels, reverse=True)
             tupleList.append(simlabels)
         return tupleList
+    
+    def getRandomNormVectors(self):
+        images = []
+        for proto in self.labelsToPrototypes.values():
+            images.append(proto.getRandomNormVector())
+        return images
                 
             
             
