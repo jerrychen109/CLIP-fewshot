@@ -1,6 +1,7 @@
-import utils
 import numpy as np
 import torch
+
+import utils
 from utils.text_utils import *
 from utils.image_utils import standardize, encodeImageWithFunc, normalize, getImagesFromFiles, imagesToVector
 
