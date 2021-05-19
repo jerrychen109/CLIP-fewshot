@@ -12,7 +12,7 @@ class FaissKNeighbors:
     self.idxType=idxType
 
   def fit(self, X, y):
-    self.index = idxType(X.shape[1])
+    self.index = self.idxType(X.shape[1])
     self.index.add(X.astype(np.float32))
     self.y = y
 
