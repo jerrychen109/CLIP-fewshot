@@ -83,7 +83,7 @@ class PrototypeVector():
 #         return tuples[0][1], tuples
     
     def classifyImagesWithClassVector(self, similarityFunc, dataset,
-        k=None, recalc=False, bimodal=False, biweight=0.5, batch_size=64):
+        k=None, recalc=False, bimodal=False, biweight=0.5, batch_size=512):
         """ Classifies the given image vectors using the closest class template based on the
         provided similarity function.
 
@@ -107,11 +107,11 @@ class PrototypeVector():
         tupleList = []
         trueLabels = []
 
-        dataloader = DataLoader(dataset, batch_size = 64)
+        dataloader = DataLoader(dataset, batch_size = batch_size)
         for images, labels in notebook.tqdm(dataloader, desc="eval"):
             _, imageVectors = imagesToVector(images, self.imageEncodeFunc, device=self.device)
+            print(imageVectors.device)
             trueLabels.extend(list(labels))
-            
             for imageVector in imageVectors:
                 maxsim = 0.0
                 maxlabel = ""
