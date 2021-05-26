@@ -3,8 +3,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 import torch
+from torch.utils.data import DataLoader
 from torchvision.transforms import Compose, Resize, CenterCrop, ToTensor, Normalize
 from PIL import Image
+from tqdm import notebook
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -222,3 +224,34 @@ def imagesToVector(images, imageEncodeFunc, device=device):
     imageVectors = encodeImageWithFunc(imageEncodeFunc, images, device)
     normImageVectors = torch.stack(list(map(lambda imageVector: normalize(imageVector), imageVectors)))
     return imageVectors, normImageVectors
+
+
+def encodeDataset(dataset, imageEncodeFunc, batch_size=512, device=device):
+    """ Encodes all images in a PyTorch Dataset into features using the given encoding function.
+
+    Inputs:
+    - dataset: A PyTorch Dataset, expected that each item is an (image, label) tuple.
+    - imageEncodeFunc: The function to use to encode the images into a feature space. Will probably
+                       be the CLIP model's encode_image function.
+    - batch_size: Batch size for DataLoader
+
+    Returns:
+    - A tuple of two PyTorch tensors (encoded_images, labels)
+        - encoded_images: A PyTorch tensor of shape (N, D), where D is the feature dimension size
+                          and N is the number of samples in the dataset
+        - labels: A Pytorch tensor of shape (N,)
+    """
+    dataloader = DataLoader(dataset, batch_size=batch_size)
+    all_encoded_images = []
+    all_labels = []
+
+    prog = notebook.tqdm(total=len(dataloader.dataset), desc="samples")
+    for images, labels in dataloader:
+        _, encoded_images = imagesToVector(images, imageEncodeFunc, device=device)
+        all_encoded_images.extend(encoded_images.cpu())
+        all_labels.extend(labels)
+        prog.update(batch_size)
+
+    all_encoded_images = torch.stack(all_encoded_images)
+    all_labels = torch.stack(all_labels)
+    return (all_encoded_images, all_labels)

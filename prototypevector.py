@@ -82,7 +82,7 @@ class PrototypeVector():
 #         tuples.sort(reverse=True)
 #         return tuples[0][1], tuples
     
-    def classifyImagesWithClassVector(self, similarityFunc, dataset,
+    def classifyImagesWithClassVector(self, similarityFunc, encoded_images,
         k=None, recalc=False, bimodal=False, biweight=0.5, batch_size=512):
         """ Classifies the given image vectors using the closest class template based on the
         provided similarity function.
@@ -105,25 +105,25 @@ class PrototypeVector():
             self.getClassVectors(k)
                 
         tupleList = []
-        trueLabels = []
+        # trueLabels = []
 
-        dataloader = DataLoader(dataset, batch_size = batch_size)
-        for images, labels in notebook.tqdm(dataloader, desc="eval"):
-            _, imageVectors = imagesToVector(images, self.imageEncodeFunc, device=self.device)
-            print(imageVectors.device)
-            trueLabels.extend(list(labels))
-            for imageVector in imageVectors:
-                maxsim = 0.0
-                maxlabel = ""
-                for label, classvec in self.allClassVectors[k].items():
-                    if bimodal:
-                        classvec = classvec*(1-biweight) + self.allTextVectors[label]*biweight
-                    similarity = similarityFunc(classvec, imageVector)
-                    if similarity > maxsim:
-                        maxsim = similarity
-                        maxlabel = label
-                tupleList.append((maxlabel, maxsim))
-        return tupleList, trueLabels
+        # dataloader = DataLoader(dataset, batch_size = batch_size)
+        # for images, labels in notebook.tqdm(dataloader, desc="eval"):
+            # _, imageVectors = imagesToVector(images, self.imageEncodeFunc, device=self.device)
+            # print(imageVectors.device)
+            # trueLabels.extend(list(labels))
+        for imageVector in notebook.tqdm(encoded_images):
+            maxsim = 0.0
+            maxlabel = ""
+            for label, classvec in self.allClassVectors[k].items():
+                if bimodal:
+                    classvec = classvec*(1-biweight) + self.allTextVectors[label]*biweight
+                similarity = similarityFunc(classvec, imageVector)
+                if similarity > maxsim:
+                    maxsim = similarity
+                    maxlabel = label
+            tupleList.append((maxlabel, maxsim))
+        return tupleList
     
     def distancesWithKVectors(self, similarityFunc, imageVectors, k=None, recalc=False):
         if k is None:

@@ -47,4 +47,3 @@ def sample_classes(data, labels, per_class = 100):
     for i in range(10):
         class_dict[i] = torch.stack(random.sample([x[0] for x in zipped if x[1] == i], per_class))
     return class_dict
-
