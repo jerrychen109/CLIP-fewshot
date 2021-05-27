@@ -82,6 +82,23 @@ class PrototypeVector():
 #         tuples.sort(reverse=True)
 #         return tuples[0][1], tuples
     
+    def classifyImagesWithClassVectorSim(self, similarityFunc, encoded_images,
+        k=None, recalc=False, bimodal=False, biweight=0.5, batch_size=512):
+
+        if k is None:
+            k = self.k
+    
+        # Add new {k: dict} if doesn't already exist or replace old if recalculating
+        if k not in self.allClassVectors or recalc == True:
+            self.getClassVectors(k)
+
+        classVecs = [tup[1] for tup in sorted(self.allClassVectors[k].items())] #list(self.allClassVectors[k].values()) should work as well
+        if bimodal:
+            classVecs = torch.stack(classVecs)*(1-biweight) + torch.stack(list(self.allTextVectors.values()))*biweight
+        else:
+            classVecs = torch.stack(classVecs)
+        return classVecs
+    
     def classifyImagesWithClassVector(self, similarityFunc, encoded_images,
         k=None, recalc=False, bimodal=False, biweight=0.5, batch_size=512):
         """ Classifies the given image vectors using the closest class template based on the
@@ -102,7 +119,9 @@ class PrototypeVector():
     
         # Add new {k: dict} if doesn't already exist or replace old if recalculating
         if k not in self.allClassVectors or recalc == True:
-            self.calcClassVectors(k)
+            self.getClassVectors(k)
+                
+        tupleList = []
         # trueLabels = []
 
         # dataloader = DataLoader(dataset, batch_size = batch_size)
@@ -110,7 +129,7 @@ class PrototypeVector():
             # _, imageVectors = imagesToVector(images, self.imageEncodeFunc, device=self.device)
             # print(imageVectors.device)
             # trueLabels.extend(list(labels))
-        classVecs = [tup[1] for tup in sorted(self.allClassVectors[k].items())]
+        classVecs = [tup[1] for tup in sorted(self.allClassVectors[k].items())] #list(self.allClassVectors[k].values()) should work as well
         if bimodal:
             classVecs = torch.stack(classVecs)*(1-biweight) + torch.stack(list(self.allTextVectors.values()))*biweight
         else:
