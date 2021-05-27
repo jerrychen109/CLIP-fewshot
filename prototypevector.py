@@ -46,7 +46,7 @@ class PrototypeVector():
 #         self.allSTDImages.append(newPrototype.getSTDImages().cpu().numpy())
         self.allVectors.append(newPrototype.getVectors().cpu().numpy())
         self.allNormVectors.append(newPrototype.getNormVectors().cpu().numpy())
-        #self.allClassVectors.append(newPrototype.getClassVector(self.k).cpu().numpy())
+        #self.allClassVectors.append(newPrototype.calcClassVector(self.k).cpu().numpy())
         self.labelsToPrototypes[label] = newPrototype
 
     def addPrototypes(self, setImages, labels):
@@ -63,7 +63,7 @@ class PrototypeVector():
     def getLabelsToPrototypes(self):
         return self.labelsToPrototypes
 
-    def getClassVectors(self, k=None):
+    def calcClassVectors(self, k=None):
         if k is None:
             k = self.k
         self.allClassVectors[k] = {}
@@ -102,9 +102,7 @@ class PrototypeVector():
     
         # Add new {k: dict} if doesn't already exist or replace old if recalculating
         if k not in self.allClassVectors or recalc == True:
-            self.getClassVectors(k)
-                
-        tupleList = []
+            self.calcClassVectors(k)
         # trueLabels = []
 
         # dataloader = DataLoader(dataset, batch_size = batch_size)
@@ -112,18 +110,13 @@ class PrototypeVector():
             # _, imageVectors = imagesToVector(images, self.imageEncodeFunc, device=self.device)
             # print(imageVectors.device)
             # trueLabels.extend(list(labels))
-        for imageVector in notebook.tqdm(encoded_images):
-            maxsim = 0.0
-            maxlabel = ""
-            for label, classvec in self.allClassVectors[k].items():
-                if bimodal:
-                    classvec = classvec*(1-biweight) + self.allTextVectors[label]*biweight
-                similarity = similarityFunc(classvec, imageVector)
-                if similarity > maxsim:
-                    maxsim = similarity
-                    maxlabel = label
-            tupleList.append((maxlabel, maxsim))
-        return tupleList
+        classVecs = [tup[1] for tup in sorted(self.allClassVectors[k].items())]
+        if bimodal:
+            classVecs = torch.stack(classVecs)*(1-biweight) + torch.stack(list(self.allTextVectors.values()))*biweight
+        else:
+            classVecs = torch.stack(classVecs)
+        similarity = similarityFunc(classVecs, encoded_images)
+        return np.argmax(similarity, axis=0), np.amax(similarity, axis=0)
     
     def distancesWithKVectors(self, similarityFunc, imageVectors, k=None, recalc=False):
         if k is None:
@@ -131,7 +124,7 @@ class PrototypeVector():
     
         # Add new {k: dict} if doesn't already exist or replace old if recalculating
         if k not in self.allClassVectors or recalc == True:
-            self.getClassVectors(k)
+            self.calcClassVectors(k)
                 
         tupleList = []
         for imageVector in imageVectors:
