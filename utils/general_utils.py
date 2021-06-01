@@ -1,6 +1,6 @@
 def importLibs():
-  ! pip install ftfy regex
-  ! wget https://openaipublic.azureedge.net/clip/bpe_simple_vocab_16e6.txt.gz -O bpe_simple_vocab_16e6.txt.gz
+  !pip install ftfy regex
+  !wget https://openaipublic.azureedge.net/clip/bpe_simple_vocab_16e6.txt.gz -O bpe_simple_vocab_16e6.txt.gz
   !apt install libomp-dev
   !pip install faiss-gpu
 
