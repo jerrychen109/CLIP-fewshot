@@ -90,7 +90,7 @@ class PrototypeVector():
     
         # Add new {k: dict} if doesn't already exist or replace old if recalculating
         if k not in self.allClassVectors or recalc == True:
-            self.getClassVectors(k)
+            self.calcClassVectors(k)
 
         classVecs = [tup[1] for tup in sorted(self.allClassVectors[k].items())] #list(self.allClassVectors[k].values()) should work as well
         if bimodal:
@@ -119,9 +119,8 @@ class PrototypeVector():
     
         # Add new {k: dict} if doesn't already exist or replace old if recalculating
         if k not in self.allClassVectors or recalc == True:
-            self.getClassVectors(k)
-                
-        tupleList = []
+            self.calcClassVectors(k)
+               
         # trueLabels = []
 
         # dataloader = DataLoader(dataset, batch_size = batch_size)
